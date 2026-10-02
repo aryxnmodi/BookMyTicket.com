@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>BookMyTicket.com — Bus, Train & Flight Booking</title>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<style>
+:root{--bg:#0d0b1e;--card:#161328;--card2:#1f1b38;--txt:#f1eefc;--mut:#9891bd;--pri:#7c4dff;--pri2:#b388ff;--acc:#ffb020;--ok:#22c55e;--warn:#f59e0b;--bad:#ef4444;--line:rgba(255,255,255,.09);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root[data-theme="light"]{--bg:#f6f7fb;--card:#fff;--card2:#f1f3fa;--txt:#131a33;--mut:#5c6690;--line:rgba(19,26,51,.1)}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]){--bg:#f6f7fb;--card:#fff;--card2:#f1f3fa;--txt:#131a33;--mut:#5c6690;--line:rgba(19,26,51,.1)}}
+html{scroll-padding-top:env(safe-area-inset-top,0px);scroll-behavior:smooth}
+*{box-sizing:border-box;margin:0}
+body{background:var(--bg);color:var(--txt);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;line-height:1.5;overflow-x:hidden}
+button,input,select{font:inherit;color:inherit}
+.brand{font-weight:800;letter-spacing:-.02em}
+.brand b{color:var(--pri)}
+nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;display:flex;align-items:center;justify-content:space-between;padding:14px 5vw;backdrop-filter:blur(14px);background:color-mix(in srgb,var(--bg) 72%,transparent);border-bottom:1px solid var(--line)}
+.logo{font-size:1.3rem;display:flex;gap:8px;align-items:center}
+.logo i{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,var(--pri),var(--pri2));display:grid;place-items:center;font-style:normal;color:#fff;font-size:.95rem;box-shadow:0 6px 18px rgba(255,107,53,.4)}
+.links{display:flex;gap:22px;color:var(--mut);font-size:.95rem}
+.links a{color:inherit;text-decoration:none;cursor:pointer}.links a:hover{color:var(--txt)}
+.btn{border:0;border-radius:11px;padding:11px 20px;cursor:pointer;font-weight:600;transition:.2s;background:linear-gradient(120deg,var(--pri),var(--pri2));color:#fff;box-shadow:0 8px 22px rgba(255,107,53,.3)}
+.btn:hover{transform:translateY(-2px)}
+.btn.ghost{background:transparent;border:1px solid var(--line);box-shadow:none;color:var(--txt)}
+.btn.sm{padding:7px 14px;font-size:.85rem}
+.row{display:flex;gap:10px;align-items:center}
+.hero{position:relative;padding:56px 5vw 40px;background:radial-gradient(ellipse 80% 60% at 70% 0%,rgba(255,107,53,.14),transparent),radial-gradient(ellipse 60% 50% at 10% 10%,rgba(0,194,184,.1),transparent)}
+.hero h1{font-size:clamp(2rem,5vw,3.4rem);line-height:1.08;font-weight:800;letter-spacing:-.03em;max-width:680px}
+.hero p{color:var(--mut);margin:14px 0 0;font-size:1.05rem;max-width:560px}
+.stats{display:flex;gap:30px;margin-top:24px;flex-wrap:wrap}.stats b{display:block;font-size:1.4rem}.stats span{color:var(--mut);font-size:.82rem}
+.book{max-width:1080px;margin:30px auto 0;padding:0 5vw}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:22px;box-shadow:0 24px 60px rgba(0,0,0,.28)}
+.tabs{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}
+.tab{padding:10px 18px;border-radius:11px;border:1px solid var(--line);background:var(--card2);cursor:pointer;font-weight:600;color:var(--mut);transition:.2s;font-size:.92rem}
+.tab.on{background:linear-gradient(120deg,var(--pri),var(--pri2));color:#fff;border-color:transparent}
+.form{display:grid;grid-template-columns:1fr auto 1fr 1fr 1fr auto;gap:10px;align-items:end}
+label{font-size:.76rem;color:var(--mut);display:block;margin-bottom:5px}
+input,select{width:100%;padding:12px 14px;border-radius:11px;border:1px solid var(--line);background:var(--card2);outline:0}
+input:focus,select:focus{border-color:var(--pri)}
+.swap{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--card2);cursor:pointer;display:grid;place-items:center;flex-shrink:0;transition:.2s;color:var(--mut)}
+.swap:hover{transform:rotate(180deg);color:var(--pri)}
+section{padding:56px 5vw;max-width:1200px;margin:auto}
+h2{font-size:clamp(1.5rem,3.2vw,2.2rem);margin-bottom:6px;letter-spacing:-.02em}
+.sub{color:var(--mut);margin-bottom:22px;font-size:.95rem}
+.results{display:grid;gap:12px}
+.res{display:grid;grid-template-columns:1.2fr 1.6fr auto;gap:16px;align-items:center;padding:18px;background:var(--card);border:1px solid var(--line);border-radius:16px;transition:.2s;animation:in .35s both}
+.res:hover{border-color:var(--pri)}
+@keyframes in{from{opacity:0;transform:translateY(10px)}}
+.res .op{font-weight:700}.res small{color:var(--mut)}
+.tl{display:flex;align-items:center;gap:10px;text-align:center}
+.tl div{flex:1}.tl b{font-size:1.1rem;display:block}
+.tl hr{flex:1.2;border:0;border-top:2px dashed var(--line)}
+.price{text-align:right}.price small{color:var(--mut)}.price b{font-size:1.3rem;display:block}
+.tag{display:inline-block;font-size:.7rem;padding:3px 9px;border-radius:99px;background:rgba(0,194,184,.14);color:var(--acc);font-weight:600}
+.tag.b{background:rgba(255,107,53,.14);color:var(--pri)}
+.cl{display:inline-block;font-size:.72rem;padding:3px 8px;border-radius:8px;margin:4px 4px 0 0;font-weight:600}
+.cl.ok{background:rgba(34,197,94,.15);color:var(--ok)}.cl.rac{background:rgba(245,158,11,.15);color:var(--warn)}.cl.wl{background:rgba(239,68,68,.15);color:var(--bad)}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px}
+.feat{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px;transition:.2s}
+.feat:hover{transform:translateY(-4px);border-color:var(--acc)}
+.feat .ic{width:44px;height:44px;border-radius:13px;display:grid;place-items:center;font-size:1.3rem;background:linear-gradient(135deg,var(--pri),var(--acc));margin-bottom:12px}
+.feat p{color:var(--mut);font-size:.9rem;margin-top:6px}
+.disc{font-size:.78rem;color:var(--mut);margin-top:14px;padding:10px 14px;border:1px dashed var(--line);border-radius:12px}
+.modal{position:fixed;inset:0;z-index:100;display:none;place-items:center;background:rgba(3,6,18,.7);backdrop-filter:blur(8px);padding:20px}
+.modal.on{display:grid}
+.box{width:100%;max-width:440px;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:26px;max-height:90vh;overflow:auto;animation:in .25s both}
+.box.wide{max-width:560px}
+.seg{display:flex;background:var(--card2);border-radius:11px;padding:4px;margin:14px 0}
+.seg button{flex:1;border:0;background:transparent;padding:9px;border-radius:8px;cursor:pointer;font-weight:600;color:var(--mut)}
+.seg button.on{background:var(--pri);color:#fff}
+.stack{display:grid;gap:11px;margin-top:6px}
+.msg{font-size:.83rem;color:var(--bad);min-height:1.2em}
+.seats{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin:14px 0}
+.seat{aspect-ratio:1;border-radius:9px;border:1px solid var(--line);background:var(--card2);cursor:pointer;font-size:.74rem;transition:.15s}
+.seat.taken{background:rgba(239,68,68,.16);cursor:not-allowed;opacity:.5}
+.seat.sel{background:linear-gradient(135deg,var(--pri),var(--pri2));color:#fff;border-color:transparent;transform:scale(1.06)}
+.pay{display:grid;gap:9px}
+.pm{display:flex;gap:10px;align-items:center;padding:12px;border:1px solid var(--line);border-radius:11px;cursor:pointer;background:var(--card2)}
+.pm.on{border-color:var(--pri);box-shadow:0 0 0 2px rgba(255,107,53,.25)}
+.ticket{background:linear-gradient(135deg,var(--pri),var(--acc));border-radius:18px;padding:22px;color:#fff;position:relative}
+.ticket:after{content:"";position:absolute;left:-10px;top:56%;width:20px;height:20px;border-radius:50%;background:var(--card)}
+.qr{width:82px;height:82px;background:repeating-conic-gradient(#fff 0 25%,#241a4d 0 50%) 0/13px 13px;border-radius:9px;border:5px solid #fff;flex-shrink:0}
+.admin{display:none;padding:24px 5vw;max-width:1250px;margin:auto}
+.admin.on{display:block}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin:18px 0}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px}
+.kpi span{color:var(--mut);font-size:.8rem}.kpi b{display:block;font-size:1.6rem}
+.two{display:grid;grid-template-columns:1.4fr 1fr;gap:14px}
+@media(max-width:900px){.two{grid-template-columns:1fr}.form{grid-template-columns:1fr 1fr}.form .swap{display:none}}
+@media(max-width:640px){.res{grid-template-columns:1fr}.price{text-align:left}.links{display:none}.form{grid-template-columns:1fr}}
+table{width:100%;border-collapse:collapse;font-size:.87rem}
+th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line)}
+th{color:var(--mut);font-weight:600}
+.wrap-x{overflow-x:auto}
+.pill{padding:3px 10px;border-radius:99px;font-size:.72rem;font-weight:600}
+.pill.confirmed{background:rgba(34,197,94,.15);color:var(--ok)}.pill.pending{background:rgba(245,158,11,.15);color:var(--warn)}.pill.cancelled{background:rgba(239,68,68,.15);color:var(--bad)}
+canvas.chart{width:100%;height:220px}
+footer{text-align:center;color:var(--mut);padding:36px 5vw;border-top:1px solid var(--line);font-size:.87rem}
+.toast{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%) translateY(120px);background:var(--card);border:1px solid var(--pri);padding:12px 20px;border-radius:13px;z-index:200;transition:.35s;box-shadow:0 10px 30px rgba(0,0,0,.3)}
+.toast.on{transform:translateX(-50%) translateY(0)}
+.empty{text-align:center;padding:50px 20px;color:var(--mut)}
+.mybk{display:grid;gap:10px}
+.mybk .row-item{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;background:var(--card);border:1px solid var(--line);border-radius:14px;flex-wrap:wrap;gap:8px}
+
+@media print{
+  body *{visibility:hidden}
+  #printArea,#printArea *{visibility:visible}
+  #printArea{position:absolute;left:0;top:0;width:100%;padding:20px}
+  .modal{position:static;background:none;backdrop-filter:none;display:block}
+  .box{box-shadow:none;border:none;max-height:none;overflow:visible}
+  #bkStep>button{display:none}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo"><i>BT</i><span class="brand">Book<b>My</b>Ticket<span style="color:var(--mut);font-weight:500">.com</span></span></div>
+  <div class="links"><a onclick="go('book')">Book</a><a onclick="go('why')">Why us</a><a onclick="openBookings()">My Bookings</a></div>
+  <div class="row">
+    <button class="btn ghost" id="themeBtn" aria-label="Toggle theme">◐</button>
+    <button class="btn" id="authBtn">Login</button>
+  </div>
+</nav>
+
+<div id="site">
+  <div class="hero">
+    <h1>India's simplest way to book <span style="color:var(--pri)">bus, train</span> &amp; <span style="color:var(--acc)">flight</span> tickets</h1>
+    <p>Search 100+ Indian cities, compare fares across classes, pick your seat, and get an instant e-ticket with PNR.</p>
+    <div class="stats"><div><b>185+</b><span>Cities covered</span></div><div><b>3</b><span>Travel modes</span></div><div><b>&lt; 60s</b><span>Average booking time</span></div></div>
+  </div>
+
+  <div class="book" id="book">
+    <div class="panel">
+      <div class="tabs" id="modeTabs">
+        <div class="tab on" data-m="flight">✈ Flights</div>
+        <div class="tab" data-m="train">🚆 Trains</div>
+        <div class="tab" data-m="bus">🚌 Buses</div>
+      </div>
+      <div class="form">
+        <div><label>From</label><input id="from" list="cityList" placeholder="Type a city" autocomplete="off"></div>
+        <button class="swap" id="swapBtn" title="Swap cities">⇄</button>
+        <div><label>To</label><input id="to" list="cityList" placeholder="Type a city" autocomplete="off"></div>
+        <datalist id="cityList"></datalist>
+        <div><label>Date</label><input type="date" id="date"></div>
+        <div><label>Passengers</label><select id="pax"><option>1</option><option>2</option><option>3</option><option>4</option></select></div>
+        <button class="btn" id="searchBtn">Search</button>
+      </div>
+    </div>
+  </div>
+
+  <section id="res">
+    <h2>Available <span style="color:var(--pri)" id="modeName">flights</span></h2>
+    <p class="sub" id="resSub">Choose your route and press Search.</p>
+    <div class="results" id="results"></div>
+  </section>
+
+  <section id="why">
+    <h2>Built for <span style="color:var(--pri)">smooth travel</span></h2>
+    <p class="sub">Everything you need, nothing you don't.</p>
+    <div class="grid3">
+      <div class="feat"><div class="ic">⚡</div><b>Instant booking</b><p>Pick a seat, pay, get your e-ticket in under a minute.</p></div>
+      <div class="feat"><div class="ic">🔒</div><b>Secure payments</b><p>Cards, UPI and wallets through a PCI-compliant gateway.</p></div>
+      <div class="feat"><div class="ic">🎫</div><b>Live seat maps</b><p>See seat-level availability before you book.</p></div>
+      <div class="feat"><div class="ic">📊</div><b>Admin control</b><p>Manage routes, prices and bookings from one dashboard.</p></div>
+    </div>
+  </section>
+</div>
+
+<div class="admin" id="admin">
+  <div class="row" style="justify-content:space-between;flex-wrap:wrap;gap:10px">
+    <div><h2>Admin <span style="color:var(--pri)">Dashboard</span></h2><p class="sub" style="margin:0">Live overview of bookings and revenue</p></div>
+    <button class="btn ghost" onclick="logout()">Logout</button>
+  </div>
+  <div class="kpis">
+    <div class="kpi"><span>Revenue</span><b id="kRev">₹0</b></div>
+    <div class="kpi"><span>Bookings</span><b id="kBk">0</b></div>
+    <div class="kpi"><span>Active routes searched</span><b id="kRt">0</b></div>
+    <div class="kpi"><span>Users</span><b>1,284</b></div>
+  </div>
+  <div class="two">
+    <div class="panel"><b>Revenue - last 7 days</b><canvas class="chart" id="chart"></canvas></div>
+    <div class="panel"><b>Add a custom route</b>
+      <div class="stack">
+        <select id="aMode"><option value="flight">Flight</option><option value="train">Train</option><option value="bus">Bus</option></select>
+        <input id="aOp" placeholder="Operator (e.g. IndiGo)">
+        <input id="aPrice" type="number" placeholder="Price (₹)">
+        <button class="btn" onclick="addRoute()">Add route</button>
+      </div>
+    </div>
+  </div>
+  <div class="panel" style="margin-top:14px"><b>Recent bookings</b>
+    <div class="wrap-x"><table><thead><tr><th>ID</th><th>Customer</th><th>Route</th><th>Type</th><th>Amount</th><th>Status</th><th></th></tr></thead><tbody id="bkRows"></tbody></table></div>
+  </div>
+</div>
+
+<div class="modal" id="authM"><div class="box">
+  <div class="row" style="justify-content:space-between"><b style="font-size:1.25rem">Welcome</b><button class="btn ghost" onclick="closeM('authM')">✕</button></div>
+  <div class="seg" id="roleSeg"><button class="on" data-r="client">Client</button><button data-r="admin">Admin</button></div>
+  <div class="seg" id="modeSeg"><button class="on" data-a="login">Login</button><button data-a="signup">Sign up</button></div>
+  <div class="stack">
+    <input id="uName" placeholder="Full name" style="display:none">
+    <input id="uMail" type="email" placeholder="Email">
+    <input id="uPass" type="password" placeholder="Password">
+    <div class="msg" id="aMsg"></div>
+    <button class="btn" id="authGo">Continue</button>
+    <small style="color:var(--mut)" id="hint">Demo client: any email + 4+ char password</small>
+  </div>
+</div></div>
+
+<div class="modal" id="bookM"><div class="box wide">
+  <div class="row" style="justify-content:space-between"><b style="font-size:1.15rem" id="bkTitle">Select seats</b><button class="btn ghost" onclick="closeM('bookM')">✕</button></div>
+  <div id="bkStep"></div>
+</div></div>
+
+<div class="modal" id="mybkM"><div class="box wide">
+  <div class="row" style="justify-content:space-between"><b style="font-size:1.15rem">My Bookings</b><button class="btn ghost" onclick="closeM('mybkM')">✕</button></div>
+  <div class="mybk" id="mybkList" style="margin-top:10px"></div>
+</div></div>
+
+<footer>© 2026 BookMyTicket.com — Demo build. Schedules and fares are modeled sample data; connect a backend and payment gateway to go live.</footer>
+<div class="toast" id="toast"></div>
+
+<script>
+
+/* ============ LIVE BACKEND BRIDGE ============
+   Set LIVE_API to your deployed backend URL to switch from demo mode to real accounts,
+   real payments and a real database. Leave it as null to keep the free in-browser demo. */
+const LIVE_API = null; // e.g. 'https://bookmyticket-api.onrender.com'
+let apiToken = LIVE_API ? localStorage.getItem('bmt_token') : null;
+async function apiCall(path, opts={}){
+  const r = await fetch(LIVE_API+path, {
+    method: opts.method||'GET',
+    headers: {'Content-Type':'application/json', ...(apiToken?{Authorization:'Bearer '+apiToken}:{})},
+    body: opts.body ? JSON.stringify(opts.body) : undefined
+  });
+  const d = await r.json();
+  if(!r.ok) throw new Error(d.error||'Request failed');
+  return d;
+}
+
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const rupee=n=>'₹'+Number(n).toLocaleString('en-IN');
+const toast=m=>{const t=$('#toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2600)};
+const go=id=>document.getElementById(id).scrollIntoView({behavior:'smooth'});
+
+/* ================= DATA ENGINE (modeled data, not live) ================= */
+const HUB={Surat:[21.17,72.83,'STV','ST'],Mumbai:[19.08,72.88,'BOM','CSMT'],Delhi:[28.61,77.21,'DEL','NDLS'],Ahmedabad:[23.02,72.57,'AMD','ADI'],Bengaluru:[12.97,77.59,'BLR','SBC'],Chennai:[13.08,80.27,'MAA','MAS'],Kolkata:[22.57,88.36,'CCU','HWH'],Pune:[18.52,73.86,'PNQ','PUNE'],Jaipur:[26.91,75.79,'JAI','JP'],Hyderabad:[17.39,78.49,'HYD','SC'],Goa:[15.49,73.83,'GOI','MAO'],Lucknow:[26.85,80.95,'LKO','LKO'],Patna:[25.59,85.14,'PAT','PNBE'],Bhopal:[23.26,77.41,'BHO','BPL'],Indore:[22.72,75.86,'IDR','INDB'],Nagpur:[21.15,79.09,'NAG','NGP'],Kochi:[9.93,76.27,'COK','ERS'],Thiruvananthapuram:[8.52,76.94,'TRV','TVC'],Chandigarh:[30.73,76.78,'IXC','CDG'],Amritsar:[31.63,74.87,'ATQ','ASR'],Varanasi:[25.32,82.97,'VNS','BSB'],Guwahati:[26.14,91.74,'GAU','GHY'],Bhubaneswar:[20.30,85.82,'BBI','BBS'],Ranchi:[23.34,85.31,'IXR','RNC'],Raipur:[21.25,81.63,'RPR','R'],Dehradun:[30.32,78.03,'DED','DDN'],Srinagar:[34.08,74.80,'SXR','SINA'],Leh:[34.15,77.58,'IXL','-'],Vadodara:[22.31,73.18,'BDQ','BRC'],Rajkot:[22.30,70.80,'RAJ','RJT'],Coimbatore:[11.02,76.96,'CJB','CBE'],Madurai:[9.92,78.12,'IXM','MDU'],Visakhapatnam:[17.69,83.22,'VTZ','VSKP'],Mysuru:[12.30,76.64,'MYQ','MYS'],Udaipur:[24.59,73.71,'UDR','UDZ'],Jodhpur:[26.24,73.02,'JDH','JU'],Agra:[27.18,78.02,'AGR','AGC'],Kanpur:[26.45,80.35,'KNU','CNB'],Mangaluru:[12.91,74.86,'IXE','MAQ'],Shimla:[31.10,77.17,'SLV','SML'],Puducherry:[11.93,79.83,'PNY','PDY'],Tirupati:[13.63,79.42,'TIR','TPTY'],Vijayawada:[16.51,80.65,'VGA','BZA'],Gwalior:[26.22,78.18,'GWL','GWL'],Jabalpur:[23.18,79.94,'JLR','JBP'],Nashik:[19.99,73.79,'ISK','NK'],Aurangabad:[19.88,75.34,'IXU','AWB'],Kolhapur:[16.70,74.24,'KLH','KOP'],Jammu:[32.73,74.87,'IXJ','JAT'],Gaya:[24.80,85.00,'GAY','GAYA'],Siliguri:[26.71,88.43,'IXB','NJP'],Gorakhpur:[26.76,83.37,'GOP','GKP'],Prayagraj:[25.43,81.85,'IXD','PRYJ'],Ludhiana:[30.90,75.86,'LUH','LDH'],Salem:[11.66,78.15,'SXV','SA'],Tiruchirappalli:[10.79,78.70,'TRZ','TPJ'],Kozhikode:[11.25,75.78,'CCJ','CLT'],Imphal:[24.82,93.94,'IMF','-'],Agartala:[23.83,91.28,'IXA','AGTL'],Dibrugarh:[27.48,94.91,'DIB','DBRG'],Bikaner:[28.02,73.31,'BKB','BKN'],Kota:[25.18,75.84,'-','KOTA'],Ajmer:[26.45,74.64,'-','AII'],Meerut:[28.98,77.71,'-','MTC'],Noida:[28.54,77.39,'-','NDLS'],Gurugram:[28.46,77.03,'-','GGN'],Faridabad:[28.41,77.31,'-','FDB'],Rishikesh:[30.09,78.27,'-','RKSH'],Haridwar:[29.95,78.16,'-','HW']};
+const EXTRA_CITIES=["Agra","Ajmer","Akola","Alappuzha","Aligarh","Alwar","Amravati","Amritsar","Anand","Aurangabad","Ayodhya","Ballari","Bareilly","Belagavi","Bhagalpur","Bharuch","Bhavnagar","Bhilai","Bhuj","Bilaspur","Bokaro","Dhanbad","Dimapur","Durgapur","Dwarka","Erode","Faridabad","Gandhinagar","Gangtok","Ghaziabad","Gulbarga (Kalaburagi)","Guntur","Gwalior","Haldwani","Hisar","Hubballi","Itanagar","Jalandhar","Jalgaon","Jamnagar","Jamshedpur","Jhansi","Junagadh","Kakinada","Kannur","Kanyakumari","Karnal","Karur","Kohima","Kollam","Kurnool","Lucknow","Madurai","Mangaluru","Mathura","Meerut","Moradabad","Morbi","Mount Abu","Munnar","Muzaffarpur","Mysuru","Navsari","Nellore","Ooty","Palakkad","Panipat","Patiala","Port Blair","Puri","Pushkar","Rajahmundry","Ratlam","Rohtak","Roorkee","Rourkela","Salem","Sambalpur","Sangli","Shillong","Shimla","Shirdi","Silvassa","Solapur","Somnath","Sri Ganganagar","Thane","Thanjavur","Thrissur","Tirunelveli","Tirupati","Udupi","Ujjain","Unjha","Vapi","Vellore","Vizianagaram","Warangal","Yamunanagar"];
+const cities=[...new Set([...Object.keys(HUB),...EXTRA_CITIES])].sort();
+const KEY=n=>n.replace(/ \(.*\)/,'').replace(/ /g,'_');
+function cityInfo(n){const h=HUB[KEY(n)];if(h)return {lat:h[0],lon:h[1],iata:h[2],stn:h[3],hub:true};
+  let x=0;for(const c of n)x=(x*31+c.charCodeAt(0))%9973;
+  return {lat:8+(x%2800)/100,lon:69+((x*7)%2700)/100,iata:'-',stn:n.replace(/[^A-Za-z]/g,'').slice(0,4).toUpperCase(),hub:false}}
+function dist(a,b){const R=6371,t=d=>d*Math.PI/180,dl=t(b.lat-a.lat),dn=t(b.lon-a.lon);
+  const q=Math.sin(dl/2)**2+Math.cos(t(a.lat))*Math.cos(t(b.lat))*Math.sin(dn/2)**2;return Math.round(2*R*Math.asin(Math.sqrt(q)))}
+const hm=m=>{m=(m%1440+1440)%1440;return String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0')};
+const dur=m=>Math.floor(m/60)+'h '+String(m%60).padStart(2,'0')+'m';
+function seedOf(...a){let x=7;for(const c of a.join('|'))x=(x*33+c.charCodeAt(0))>>>0;return()=>{x=(x*1664525+1013904223)>>>0;return x/4294967296}}
+const AIRLINES=[['IndiGo','6E',1],['Air India','AI',1.18],['Vistara/Air India','UK',1.15],['Akasa Air','QP',.94],['SpiceJet','SG',.92],['Air India Express','IX',.9]];
+const TRAIN_NAMES=['Rajdhani Express','Shatabdi Express','Vande Bharat Express','Duronto Express','Garib Rath','Superfast Express','Jan Shatabdi','Humsafar Express','Tejas Express','Intercity Express'];
+const TRAIN_CLASSES={'1A':{n:'First AC',m:3.9},'2A':{n:'Second AC',m:2.35},'3A':{n:'Third AC',m:1.6},'SL':{n:'Sleeper',m:.62},'CC':{n:'AC Chair Car',m:1.35},'2S':{n:'Second Sitting',m:.4}};
+const BUS_OPS=[['VRL Travels','Volvo Multi-Axle AC Sleeper',1.25],['Neeta Travels','Mercedes AC Seater/Sleeper',1.2],['IntrCity SmartBus','Volvo AC Semi-Sleeper',1.15],['Orange Tours','Scania AC Sleeper',1.3],['Kallada Travels','Volvo AC Sleeper',1.2],['SRS Travels','Volvo B11R AC Sleeper',1.25],['State Transport','Ordinary / Express',.55],['Parveen Travels','AC Sleeper 2+1',1.1]];
+const dayOff=(dep,mins)=>Math.floor((dep+mins)/1440);
+
+function genRoutes(mode,from,to,dateStr){
+  const A=cityInfo(from),B=cityInfo(to),km=Math.max(dist(A,B),30),R=seedOf(mode,from,to,dateStr),out=[];
+  const dt=new Date(dateStr||Date.now()),dow=dt.getDay(),weekend=dow===0||dow===5||dow===6,peak=weekend?1.12:1;
+  if(mode==='flight'){
+    if(km<250||A.iata==='-'||B.iata==='-'||!A.hub||!B.hub)return[];
+    const n=Math.min(6,2+Math.floor(km/600));
+    for(let i=0;i<n;i++){
+      const a=AIRLINES[Math.floor(R()*AIRLINES.length)],dep=330+Math.floor((i*(1000/n)+R()*80)/5)*5;
+      const fl=Math.round(km/(km>1500?760:690)*60+35);
+      const price=Math.round((1500+km*2.6)*a[2]*peak*(.85+R()*.3)/10)*10;
+      const stops=km>2100&&R()<.45?1:0,adj=stops?70:0;
+      out.push({mode,op:a[0],no:a[1]+' '+(200+Math.floor(R()*7800)),aircraft:['A320neo','A321','B737-800','ATR 72','A320'][Math.floor(R()*5)],
+        dep:hm(dep),arr:hm(dep+fl+adj),mins:fl+adj,from,to,fromCode:A.iata,toCode:B.iata,price,stops,seatsLeft:4+Math.floor(R()*32),
+        cls:[{c:'ECO',n:'Economy',price},{c:'PRE',n:'Premium Economy',price:Math.round(price*1.7)},{c:'BUS',n:'Business',price:Math.round(price*3.1)}],
+        baggage:'15 kg check-in · 7 kg cabin',refund:'Cancellation fee from ₹3,000',days:dayOff(dep,fl+adj)});
+    }
+  }
+  if(mode==='train'){
+    const n=Math.min(6,2+Math.floor(km/450));
+    for(let i=0;i<n;i++){
+      let nm=TRAIN_NAMES[Math.floor(R()*TRAIN_NAMES.length)];
+      if(/Shatabdi|Vande|Jan Shatabdi/.test(nm)&&km>1000)nm='Rajdhani Express';
+      if(/Rajdhani|Duronto/.test(nm)&&km<400)nm='Intercity Express';
+      const fast=/Rajdhani|Vande|Shatabdi|Duronto|Tejas/.test(nm),day=/Shatabdi|Vande|Tejas|Intercity/.test(nm)&&km<1000;
+      const kmh=fast?(nm.includes('Vande')?78:68):48,run=Math.round(km*1.22/kmh*60);
+      const dep=day?(330+Math.floor((i*(720/n)+R()*60)/5)*5):(960+Math.floor((i*(420/n)+R()*40)/5)*5);
+      const no=(fast?12000:14000)+Math.floor(R()*9000),classes=fast?['1A','2A','3A','CC']:['2A','3A','SL','2S'];
+      const base=Math.round(km*.85+60);
+      out.push({mode,op:nm,no:String(no),dep:hm(dep),arr:hm(dep+run),mins:run,from,to,fromCode:A.stn,toCode:B.stn,km,
+        cls:classes.map(c=>({c,n:TRAIN_CLASSES[c].n,price:Math.round(base*TRAIN_CLASSES[c].m/5)*5,avail:R()<.2?'WL '+(1+Math.floor(R()*40)):R()<.15?'RAC '+(1+Math.floor(R()*20)):'AVL '+(3+Math.floor(R()*180))})),
+        price:Math.round(base*TRAIN_CLASSES[classes[classes.length-1]].m/5)*5,
+        runs:'Mon Tue Wed Thu Fri Sat Sun'.split(' ').filter(()=>R()<.8).join(' ')||'Daily',
+        pantry:fast,refund:'Cancellation as per IRCTC rules',days:dayOff(dep,run)});
+    }
+  }
+  if(mode==='bus'){
+    if(km>1100)return[];
+    const n=Math.min(8,3+Math.floor(km/180));
+    for(let i=0;i<n;i++){
+      const o=BUS_OPS[Math.floor(R()*BUS_OPS.length)],run=Math.round(km*1.3/52*60);
+      const dep=km>350?(1080+Math.floor((i*(300/n)+R()*40)/5)*5):(360+Math.floor((i*(600/n)+R()*40)/5)*5);
+      const price=Math.round((km*1.45+120)*o[2]*peak/10)*10;
+      out.push({mode,op:o[0],type:o[1],no:'BUS-'+(1000+Math.floor(R()*8999)),dep:hm(dep),arr:hm(dep+run),mins:run,from,to,fromCode:'',toCode:'',km,price,
+        seatsLeft:3+Math.floor(R()*30),rating:(3.6+R()*1.3).toFixed(1),boarding:from+' Central Bus Stand',dropping:to+' Bus Terminal',
+        amenities:['Charging point','Blanket','Water bottle','Live tracking','Reading light'].filter(()=>R()<.7),
+        refund:'Free cancellation up to 12h before departure',days:dayOff(dep,run)});
+    }
+  }
+  return out.sort((a,b)=>a.dep.localeCompare(b.dep));
+}
+
+/* ---------- state ---------- */
+let mode='flight',user=null,role='client',authMode='login',pick=null,seatSel=[],payM='upi',paxList=[],lastList=[],sortBy='dep';
+const icons={flight:'✈',train:'🚆',bus:'🚌'};
+let bookings=JSON.parse(sessionStorage.getItem('bk')||'null')||[
+ {id:'BMT1042',name:'Aarav Shah',route:'Surat → Mumbai',mode:'train',amt:1450,st:'confirmed'},
+ {id:'BMT1041',name:'Meera Patel',route:'Delhi → Jaipur',mode:'bus',amt:720,st:'confirmed'},
+ {id:'BMT1040',name:'Rohan Iyer',route:'Chennai → Bengaluru',mode:'flight',amt:3900,st:'pending'},
+ {id:'BMT1039',name:'Sana Khan',route:'Pune → Hyderabad',mode:'flight',amt:5100,st:'confirmed'}
+];
+
+/* ---------- init form ---------- */
+$('#cityList').innerHTML=cities.map(c=>`<option value="${c}">`).join('');
+$('#from').value='Surat';$('#to').value='Mumbai';
+$('#date').valueAsDate=new Date(Date.now()+864e5);
+$('#date').min=new Date().toISOString().slice(0,10);
+$$('#modeTabs .tab').forEach(t=>t.onclick=()=>{$$('#modeTabs .tab').forEach(x=>x.classList.remove('on'));t.classList.add('on');mode=t.dataset.m;search()});
+$('#searchBtn').onclick=search;
+$('#swapBtn').onclick=()=>{const f=$('#from').value;$('#from').value=$('#to').value;$('#to').value=f;};
+
+function search(){
+  const f=$('#from').value.trim(),t=$('#to').value.trim();
+  if(!cities.includes(f)||!cities.includes(t)){toast('Pick both cities from the list');return}
+  if(f===t){toast('Choose different cities');return}
+  $('#modeName').textContent=mode+'s';
+  lastList=genRoutes(mode,f,t,$('#date').value);
+  $('#resSub').textContent=`${f} → ${t} · ${$('#date').value} · ${$('#pax').value} passenger(s) · ${lastList.length} option(s) · sample schedule data`;
+  renderList();go('res');
+}
+function renderList(){
+  const px=+$('#pax').value,l=[...lastList];
+  if(sortBy==='price')l.sort((a,b)=>a.price-b.price);else if(sortBy==='fast')l.sort((a,b)=>a.mins-b.mins);else l.sort((a,b)=>a.dep.localeCompare(b.dep));
+  const bar=`<div class="row" style="flex-wrap:wrap;gap:8px;margin-bottom:6px">${[['dep','Earliest'],['price','Cheapest'],['fast','Fastest']].map(([k,n])=>`<button class="tab ${sortBy===k?'on':''}" onclick="sortBy='${k}';renderList()">${n}</button>`).join('')}</div>`;
+  if(!l.length){$('#results').innerHTML=bar+`<div class="panel empty"><b>No ${mode} service found for this route.</b><p class="sub" style="margin:6px 0 0">${mode==='flight'?'These cities are too close for flights or have no airport. Try Train or Bus.':mode==='bus'?'Distance is too long for a direct bus. Try Train or Flight.':'Try another mode.'}</p></div>`;return}
+  $('#results').innerHTML=bar+l.map((r,i)=>{
+    const ix=lastList.indexOf(r),code=r.fromCode&&r.toCode?`<small>${r.fromCode} → ${r.toCode}</small>`:'';
+    const head=r.mode==='flight'?`${icons.flight} ${r.op} <small>· ${r.no} · ${r.aircraft}</small>`:r.mode==='train'?`${icons.train} ${r.no} ${r.op}`:`${icons.bus} ${r.op} <small>· ${r.type}</small>`;
+    const meta=r.mode==='flight'?`<span class="tag">${r.stops?'1 stop':'Non-stop'}</span> <span class="tag b">${r.seatsLeft} seats left</span> <small>${r.baggage}</small>`
+      :r.mode==='train'?`<small>${r.km} km · Runs: ${r.runs}</small><br>${r.cls.map(c=>`<span class="cl ${c.avail.startsWith('AVL')?'ok':c.avail.startsWith('RAC')?'rac':'wl'}">${c.c} ${rupee(c.price)} · ${c.avail}</span>`).join('')}`
+      :`<span class="tag">★ ${r.rating}</span> <span class="tag b">${r.seatsLeft} seats left</span> <small>${r.km} km · ${r.amenities.join(' · ')}</small>`;
+    return `<div class="res" style="animation-delay:${i*50}ms">
+     <div><div class="op">${head}</div>${code}<div style="margin-top:6px">${meta}</div></div>
+     <div class="tl"><div><b>${r.dep}</b><small>${r.from}</small></div><div style="flex:1.3;text-align:center"><small>${dur(r.mins)}</small><hr style="margin:4px 0"><small>${r.days?'+'+r.days+' day':'same day'}</small></div><div><b>${r.arr}</b><small>${r.to}</small></div></div>
+     <div class="price"><small>from</small><b>${rupee(r.price*px)}</b><button class="btn sm" onclick="startBook(${ix})">Book</button></div></div>`}).join('');
+}
+
+/* ---------- modals / auth ---------- */
+const openM=id=>$('#'+id).classList.add('on'),closeM=id=>$('#'+id).classList.remove('on');
+function openAuth(){openM('authM')}
+$('#authBtn').onclick=()=>user?logout():openAuth();
+$$('#roleSeg button').forEach(b=>b.onclick=()=>{$$('#roleSeg button').forEach(x=>x.classList.remove('on'));b.classList.add('on');role=b.dataset.r;$('#hint').textContent=role==='admin'?'Demo admin: admin@bookmyticket.com / admin123':'Demo client: any email + 4+ char password'});
+$$('#modeSeg button').forEach(b=>b.onclick=()=>{$$('#modeSeg button').forEach(x=>x.classList.remove('on'));b.classList.add('on');authMode=b.dataset.a;$('#uName').style.display=authMode==='signup'?'block':'none'});
+$('#authGo').onclick=async()=>{
+  const mail=$('#uMail').value.trim(),pw=$('#uPass').value,name=$('#uName').value.trim();
+  if(!/\S+@\S+\.\S+/.test(mail))return $('#aMsg').textContent='Enter a valid email';
+  if(pw.length<4)return $('#aMsg').textContent='Password must be 4+ characters';
+  if(LIVE_API){
+    try{
+      const path=authMode==='signup'?'/api/auth/signup':'/api/auth/login';
+      const body=authMode==='signup'?{name:name||mail.split('@')[0],email:mail,password:pw}:{email:mail,password:pw};
+      const d=await apiCall(path,{method:'POST',body});
+      apiToken=d.token;localStorage.setItem('bmt_token',apiToken);
+      user={mail,role:d.user.role,name:d.user.name};role=d.user.role;
+    }catch(e){return $('#aMsg').textContent=e.message}
+  }else{
+    if(role==='admin'&&!(mail==='admin@bookmyticket.com'&&pw==='admin123'))return $('#aMsg').textContent='Invalid admin credentials';
+    user={mail,role,name:name||mail.split('@')[0]};
+  }
+  $('#aMsg').textContent='';closeM('authM');$('#authBtn').textContent='Logout';
+  toast(`Welcome, ${user.name}`);
+  if(role==='admin'){$('#site').style.display='none';$('#admin').classList.add('on');renderAdmin()}
+};
+function logout(){user=null;$('#authBtn').textContent='Login';$('#site').style.display='block';$('#admin').classList.remove('on');toast('Logged out')}
+
+/* ---------- my bookings ---------- */
+function openBookings(){
+  if(!user){toast('Please login to view bookings');openAuth();return}
+  const mine=bookings.filter(b=>b.name===user.name);
+  $('#mybkList').innerHTML=mine.length?mine.map(b=>`<div class="row-item"><div><b>${icons[b.mode]} ${b.route}</b><br><small>${b.id}</small></div><div class="row"><b>${rupee(b.amt)}</b><span class="pill ${b.st}">${b.st}</span></div></div>`).join('')
+    :`<div class="empty">No bookings yet.<br>Search and book a trip to see it here.</div>`;
+  openM('mybkM');
+}
+
+/* ---------- booking flow ---------- */
+function startBook(i){
+  if(!user){toast('Please login to book');openAuth();return}
+  pick=lastList[i];seatSel=[];
+  if(pick.cls&&pick.mode!=='bus')classStep();else seatStep();
+  openM('bookM');
+}
+function classStep(){
+  $('#bkTitle').textContent='Choose class';
+  const px=+$('#pax').value;
+  $('#bkStep').innerHTML=`<p class="sub" style="margin:8px 0">${pick.op} ${pick.no||''} · ${pick.from} → ${pick.to}</p><div class="pay">
+   ${pick.cls.map((c,i)=>{const bad=c.avail&&c.avail.startsWith('WL');return `<div class="pm ${i===0?'on':''}" data-i="${i}"><div style="flex:1"><b>${c.n}</b> <small>(${c.c})</small><br><small>${c.avail?c.avail+(bad?' · waitlisted':''):pick.baggage}</small></div><b>${rupee(c.price*px)}</b></div>`}).join('')}
+   <button class="btn" id="clsGo">Continue</button></div>`;
+  let ci=0;$$('.pm').forEach(p=>p.onclick=()=>{$$('.pm').forEach(x=>x.classList.remove('on'));p.classList.add('on');ci=+p.dataset.i});
+  $('#clsGo').onclick=()=>{pick.sel=pick.cls[ci];pick.price=pick.sel.price;seatStep()};
+}
+function seatStep(){
+  const need=+$('#pax').value,taken=new Set([2,5,9,14,15,20,23]);
+  $('#bkTitle').textContent='Select seats';
+  $('#bkStep').innerHTML=`<p class="sub" style="margin:8px 0">${pick.op} ${pick.no||''}${pick.sel?' · '+pick.sel.n:''} · pick ${need} seat(s)</p>
+   <div class="seats">${Array.from({length:24},(_,i)=>`<button class="seat ${taken.has(i)?'taken':''}" data-i="${i}">${i+1}</button>`).join('')}</div>
+   <div class="row" style="justify-content:space-between"><b id="tot">${rupee(0)}</b><button class="btn" id="toPay">Continue</button></div>`;
+  $$('.seat:not(.taken)').forEach(s=>s.onclick=()=>{
+    const i=+s.dataset.i;
+    if(seatSel.includes(i)){seatSel=seatSel.filter(x=>x!==i);s.classList.remove('sel')}
+    else if(seatSel.length<need){seatSel.push(i);s.classList.add('sel')}
+    $('#tot').textContent=rupee(seatSel.length*pick.price);
+  });
+  $('#toPay').onclick=()=>seatSel.length===need?paxStep():toast(`Select ${need} seat(s)`);
+}
+function paxStep(){
+  $('#bkTitle').textContent='Passenger details';
+  $('#bkStep').innerHTML=`<div class="stack">${seatSel.map((sn,i)=>`<div class="panel" style="padding:12px"><small>Passenger ${i+1} · Seat ${sn+1}</small>
+   <input class="pn" placeholder="Full name (as on ID)" value="${i===0?(user.name||''):''}"><div class="row" style="margin-top:8px"><input class="pa" type="number" min="1" max="120" placeholder="Age"><select class="pg"><option>Male</option><option>Female</option><option>Other</option></select></div></div>`).join('')}
+   <input id="pPhone" type="tel" placeholder="Mobile number (10 digits)"><div class="msg" id="pMsg"></div><button class="btn" id="paxGo">Continue to payment</button></div>`;
+  $('#paxGo').onclick=()=>{
+    const n=$$('.pn').map(x=>x.value.trim()),a=$$('.pa').map(x=>+x.value),g=$$('.pg').map(x=>x.value);
+    if(n.some(x=>x.length<2)||a.some(x=>!x||x<1||x>120))return $('#pMsg').textContent='Enter valid name and age for every passenger';
+    if(!/^[6-9]\d{9}$/.test($('#pPhone').value.trim()))return $('#pMsg').textContent='Enter a valid 10-digit Indian mobile number';
+    paxList=n.map((x,i)=>({name:x,age:a[i],gender:g[i],seat:seatSel[i]+1}));payStep();
+  };
+}
+function payStep(){
+  const amt=seatSel.length*pick.price;
+  $('#bkTitle').textContent='Payment';
+  $('#bkStep').innerHTML=`<div class="pay" style="margin-top:12px">
+    ${[['upi','📱 UPI'],['card','💳 Credit / Debit card'],['wallet','👛 Wallet']].map(([k,l])=>`<div class="pm ${k===payM?'on':''}" data-p="${k}">${l}</div>`).join('')}
+    <input placeholder="Card / UPI ID (demo - nothing is charged)">
+    <button class="btn" id="payGo">Pay ${rupee(amt)}</button></div>`;
+  $$('.pm').forEach(p=>p.onclick=()=>{payM=p.dataset.p;$$('.pm').forEach(x=>x.classList.remove('on'));p.classList.add('on')});
+  $('#payGo').onclick=async()=>{
+    $('#payGo').textContent='Processing...';$('#payGo').disabled=true;
+    if(!LIVE_API){setTimeout(()=>done(amt),1100);return}
+    try{
+      const routeId=pick.id; // set this from your live /api/routes response when wiring real data
+      const o=await apiCall('/api/bookings',{method:'POST',body:{routeId,origin:pick.from,destination:pick.to,date:$('#date').value,seats:seatSel}});
+      new Razorpay({key:o.key,amount:o.amount,currency:o.currency,order_id:o.orderId,name:'BookMyTicket.com',
+        handler:async r=>{
+          const v=await apiCall('/api/bookings/verify',{method:'POST',body:{orderId:r.razorpay_order_id,paymentId:r.razorpay_payment_id,signature:r.razorpay_signature}});
+          done(amt,v.ticket);
+        }}).open();
+    }catch(e){toast(e.message);$('#payGo').textContent='Pay '+rupee(amt);$('#payGo').disabled=false}
+  };
+}
+function done(amt){
+  const pnr=String(Math.floor(1e9+Math.random()*9e9));
+  const id=pick.mode==='train'?('PNR '+pnr):('BMT'+(1043+bookings.length-4));
+  bookings.unshift({id,name:user.name,route:`${pick.from} → ${pick.to}`,mode:pick.mode,amt,st:'confirmed'});
+  sessionStorage.setItem('bk',JSON.stringify(bookings));
+  $('#bkTitle').textContent='Booking confirmed 🎉';
+  lastTicket={id,op:pick.op,route:`${pick.from} → ${pick.to}`,no:pick.no||'',cls:pick.sel?pick.sel.n:'',date:$('#date').value,dep:pick.dep,arr:pick.arr,pax:paxList,seats:seatSel.map(s=>s+1),amt};
+  $('#bkStep').innerHTML=`<div class="ticket" id="printArea" style="margin-top:14px">
+    <div class="row" style="justify-content:space-between;align-items:flex-start"><div><small>${pick.op}</small><h3 style="font-size:1.3rem">${pick.from} → ${pick.to}</h3><small>${pick.no||''} ${pick.sel?'· '+pick.sel.n:''}</small><br><small>${$('#date').value} · ${pick.dep} - ${pick.arr}</small></div><div class="qr"></div></div>
+    <hr style="border:0;border-top:2px dashed rgba(255,255,255,.4);margin:14px 0">
+    <div style="font-size:.85rem;margin-bottom:12px">${paxList.map(p=>`${p.name} (${p.age}/${p.gender[0]}) · Seat ${p.seat}`).join('<br>')}</div>
+    <div class="row" style="justify-content:space-between"><div><small>Booking ID</small><br><b>${id}</b></div><div><small>Seats</small><br><b>${seatSel.map(s=>s+1).join(', ')}</b></div><div><small>Paid</small><br><b>${rupee(amt)}</b></div></div></div>
+    <div class="row" style="margin-top:14px;gap:10px">
+      <button class="btn" style="flex:1" onclick="printTicket()">🖨 Print ticket</button>
+      <button class="btn ghost" style="flex:1" onclick="downloadTicket()">⬇ Download ticket</button>
+    </div>`;
+}
+let lastTicket=null;
+function printTicket(){
+  if(!document.getElementById('printArea')){toast('Open a ticket first');return}
+  window.print();
+}
+function downloadTicket(){
+  if(!lastTicket)return;
+  const t=lastTicket;
+  const html=`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Ticket ${t.id}</title>
+  <style>body{font-family:Arial,sans-serif;background:#fff;color:#1a1a1a;padding:30px;max-width:520px;margin:auto}
+  .card{border:2px solid #7c4dff;border-radius:14px;padding:22px}
+  h1{font-size:1.3rem;margin:0 0 4px}.muted{color:#666;font-size:.85rem}
+  hr{border:none;border-top:1px dashed #ccc;margin:16px 0}
+  .grid{display:flex;justify-content:space-between;margin-top:10px}
+  .grid div{text-align:left}.grid b{display:block;font-size:1rem}</style></head>
+  <body><div class="card">
+  <div class="muted">${t.op}</div>
+  <h1>${t.route}</h1>
+  <div class="muted">${t.no} ${t.cls?'· '+t.cls:''}</div>
+  <div class="muted">${t.date} · ${t.dep} - ${t.arr}</div>
+  <hr>
+  <div>${t.pax.map(p=>`${p.name} (${p.age}/${p.gender[0]}) · Seat ${p.seat}`).join('<br>')}</div>
+  <div class="grid"><div class="muted">Booking ID<b>${t.id}</b></div><div class="muted">Seats<b>${t.seats.join(', ')}</b></div><div class="muted">Paid<b>${rupee(t.amt)}</b></div></div>
+  </div></body></html>`;
+  const blob=new Blob([html],{type:'text/html'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`ticket-${t.id.replace(/\s+/g,'-')}.html`;
+  document.body.appendChild(a);a.click();a.remove();
+  toast('Ticket downloaded');
+}
+
+/* ---------- admin ---------- */
+function renderAdmin(){
+  $('#kRev').textContent=rupee(bookings.reduce((a,b)=>a+b.amt,0)+184500);
+  $('#kBk').textContent=bookings.length+320;$('#kRt').textContent=lastList.length||9;
+  $('#bkRows').innerHTML=bookings.map(b=>`<tr><td>${b.id}</td><td>${b.name}</td><td>${b.route}</td><td>${icons[b.mode]}</td><td>${rupee(b.amt)}</td>
+   <td><span class="pill ${b.st}">${b.st}</span></td>
+   <td><button class="btn ghost sm" onclick="cancelBk('${b.id}')">Cancel</button></td></tr>`).join('');
+  drawChart();
+}
+function cancelBk(id){const b=bookings.find(x=>x.id===id);b.st='cancelled';renderAdmin();toast('Booking cancelled')}
+function addRoute(){
+  const op=$('#aOp').value.trim(),p=+$('#aPrice').value;
+  if(!op||!p)return toast('Enter operator and price');
+  toast(`${op} added to ${$('#aMode').value} routes`);$('#aOp').value=$('#aPrice').value='';
+}
+function drawChart(){
+  const c=$('#chart'),r=c.getBoundingClientRect(),d=devicePixelRatio||1;c.width=r.width*d;c.height=r.height*d;
+  const x=c.getContext('2d');x.scale(d,d);
+  const v=[32,45,38,60,52,78,66],w=r.width,h=r.height,m=26,bw=(w-m*2)/v.length;
+  const g=x.createLinearGradient(0,0,0,h);g.addColorStop(0,'#7c4dff');g.addColorStop(1,'#ffb020');
+  x.fillStyle=g;v.forEach((n,i)=>{const bh=(h-50)*n/80;x.beginPath();x.roundRect(m+i*bw+8,h-24-bh,bw-16,bh,8);x.fill()});
+  x.fillStyle=getComputedStyle(document.body).color;x.globalAlpha=.6;x.font='11px sans-serif';x.textAlign='center';
+  ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].forEach((t,i)=>x.fillText(t,m+i*bw+bw/2,h-8));
+}
+
+$('#themeBtn').onclick=()=>{const r=document.documentElement;const dark=getComputedStyle(r).getPropertyValue('--bg').trim()==='#0d0b1e';r.dataset.theme=dark?'light':'dark';if($('#admin').classList.contains('on'))setTimeout(drawChart,50)};
+
+search();
+</script>
+</body>
+</html>
